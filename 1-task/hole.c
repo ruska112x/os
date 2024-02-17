@@ -6,7 +6,8 @@ char buf2[] = "ABCDEFGHIJ";
 
 void err_sys(const char *msg, ...)
 {
-    printf("%s", msg);
+    perror(msg);
+    exit(1);
 }
 
 int main(void)
@@ -24,7 +25,7 @@ int main(void)
     }
     /* теперь текущая позиция = 10 */
 
-    if (lseek(fd, 16384*16384, SEEK_SET) == -1)
+    if (lseek(fd, 16384 * 16384, SEEK_SET) == -1)
     {
         err_sys("ошибка вызова lseek");
     }
