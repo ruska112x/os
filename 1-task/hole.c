@@ -4,6 +4,11 @@
 char buf1[] = "abcdefghij";
 char buf2[] = "ABCDEFGHIJ";
 
+void err_sys(const char *msg, ...)
+{
+    printf("%s", msg);
+}
+
 int main(void)
 {
     int fd;
@@ -19,7 +24,7 @@ int main(void)
     }
     /* теперь текущая позиция = 10 */
 
-    if (lseek(fd, 16384, SEEK_SET) == -1)
+    if (lseek(fd, 16384*16384, SEEK_SET) == -1)
     {
         err_sys("ошибка вызова lseek");
     }
@@ -30,6 +35,6 @@ int main(void)
         err_sys("ошибка записи buf2");
     }
     /* теперь текущая позиция = 16394 */
-    
+
     exit(0);
 }
