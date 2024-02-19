@@ -1,41 +1,48 @@
-#include "apue.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 
-char buf1[] = "abcdefghij";
-char buf2[] = "ABCDEFGHIJ";
-
-void err_sys(const char *msg, ...)
-{
-    perror(msg);
-    exit(1);
-}
+char buf1[] = "abcdefghijklmnop";
+char buf2[] = "ABCDEFGHIJKLMNOP";
 
 int main(void)
 {
     int fd;
 
-    if ((fd = creat("file.hole", FILE_MODE)) < 0)
+    /*
+     * Default file access permissions for new files
+     * S_IRUSR | read permisson for user
+     * S_IWUSR | write pertmisson for user
+     * S_IRGRP | read permisson for group
+     * S_IROTH | read permisson for other`
+     */
+
+    if ((fd = creat("file.hole", S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) < 0)
     {
-        err_sys("ошибка вызова creat");
+        perror("ошибка вызова creat");
+        exit(1);
     }
 
-    if (write(fd, buf1, 10) != 10)
+    if (write(fd, buf1, 16) != 16)
     {
-        err_sys("ошибка записи buf1");
+        perror("ошибка записи buf1");
+        exit(1);
     }
-    /* теперь текущая позиция = 10 */
+    /* теперь текущая позиция = 16 */
 
-    if (lseek(fd, 16384, SEEK_SET) == -1)
+    if (lseek(fd, 16368, SEEK_SET) == -1)
     {
-        err_sys("ошибка вызова lseek");
+        perror("ошибка вызова lseek");
+        exit(1);
+    }
+    /* теперь текущая позиция = 16368 */
+
+    if (write(fd, buf2, 16) != 16)
+    {
+        perror("ошибка записи buf2");
+        exit(1);
     }
     /* теперь текущая позиция = 16384 */
-
-    if (write(fd, buf2, 10) != 10)
-    {
-        err_sys("ошибка записи buf2");
-    }
-    /* теперь текущая позиция = 16394 */
 
     exit(0);
 }
