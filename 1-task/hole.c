@@ -26,6 +26,7 @@ int main(void) {
     printf("ошибка записи buf2");
     return 1;
   }
+  
 
   return 0;
 }
