@@ -21,9 +21,6 @@ int main(int argc, char *argv[]) {
   int cycles = 0;
   int bytes_count;
   while ((bytes_count = read(STDIN_FILENO, buffer, buf_size)) > 0) {
-    for (int i = 0; i < buf_size; ++i) {
-      fprintf(stderr, "%c\n", buffer[i]);
-    }
     write(STDOUT_FILENO, buffer, bytes_count);
     cycles++;
   }

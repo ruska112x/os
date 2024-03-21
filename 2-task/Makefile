@@ -1,6 +1,8 @@
-default: all
+default: clean-build
 
 all: clean build run
+
+clean-build: clean build
 
 build:
 	gcc -Wall main.c
