@@ -3,31 +3,32 @@
 #include <unistd.h>
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        printf("Вы не ввели длину буфера!\n");
-        return 1;
+  if (argc < 2) {
+    fprintf(stderr,
+            "Не верное количество параметров, требуется как минимум один "
+            "параметр - размер буфера!\n");
+    return 1;
+  }
+
+  int buf_size = atoi(argv[1]);
+  if (buf_size <= 0) {
+    fprintf(stderr, "Размер буфера должен быть больше 0!\n");
+    return 1;
+  }
+
+  char buffer[buf_size];
+
+  int cycles = 0;
+  int bytes_count;
+  while ((bytes_count = read(STDIN_FILENO, buffer, buf_size)) > 0) {
+    for (int i = 0; i < buf_size; ++i) {
+      fprintf(stderr, "%c\n", buffer[i]);
     }
+    write(STDOUT_FILENO, buffer, bytes_count);
+    cycles++;
+  }
 
-    int bufferSize;
-    if (sscanf(argv[1], "%d", &bufferSize) == 0 || bufferSize < 0) {
-        printf("Введена неправильная длина буфера!\n");
-        return 1;
-    }
+  fprintf(stderr, "Всего циклов: %d\n", cycles);
 
-    char *buffer = (char *) malloc(bufferSize);
-    if (buffer == NULL) {
-        printf("Не удалось выделить память для буффера\n");
-        return 1;
-    }
-
-    int cycles = 0;
-    int bytes_num;
-    while ((bytes_num = read(STDIN_FILENO, buffer, bufferSize)) > 0) {
-        write(STDOUT_FILENO, buffer, bytes_num);
-        cycles++;
-    }
-
-    fprintf(stderr, "Всего циклов: %d\n", cycles);
-
-    return 0;
+  return 0;
 }
