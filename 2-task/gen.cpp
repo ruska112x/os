@@ -1,9 +1,7 @@
-#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <random>
 #include <string>
-#include <thread>
 #include <vector>
 
 using namespace std;
@@ -25,28 +23,11 @@ void generateRandomNumbersFile(const string &fileName, size_t fileSizeBytes) {
 }
 
 int main() {
-  size_t numFiles = 20;
   size_t targetSizeBytes = 256 * 1024 * 1024;
-  vector<thread> threads;
-  for (size_t i = 0; i < numFiles; ++i) {
-    string fileName = "file" + to_string(i);
-    size_t fileSize = targetSizeBytes;
-    threads.emplace_back(generateRandomNumbersFile, fileName, fileSize);
-  }
 
-  for (auto &thread : threads) {
-    thread.join();
-  }
-
-  size_t totalFilesSize = 0;
-  for (size_t i = 0; i < numFiles; ++i) {
-    string fileName = "file" + to_string(i);
-    ifstream file(fileName, ios::binary | ios::ate);
-    totalFilesSize += file.tellg();
-  }
-
-  cout << "Total size of generated files: "
-       << totalFilesSize / (1024.0 * 1024 * 1024) << " GB" << endl;
+  string fileName = "file0";
+  size_t fileSize = targetSizeBytes;
+  generateRandomNumbersFile(fileName, fileSize);
 
   return 0;
 }

@@ -3,7 +3,7 @@
 #include <unistd.h>
 
 int main(int argc, char *argv[]) {
-  if (argc < 2) {
+  if (argc != 2) {
     fprintf(stderr,
             "Не верное количество параметров, требуется как минимум один "
             "параметр - размер буфера!\n");
