@@ -61,13 +61,16 @@ cgetcwd_r cgetcwd() {
         return result;
       }
       if (S_ISLNK(ecd_stat.st_mode)) {
-        if (stat(ecd_dirent->d_name, &ecd_stat) == -1) {
-          result.error = -1;
-          return result;
-        }
-        if (ecd_stat.st_dev == cwd_stat.st_dev &&
-            ecd_stat.st_ino == cwd_stat.st_ino) {
-          ++result.count_of_symlink;
+        if (strchr(ecd_dirent->d_name, 'z') != NULL ||
+            strchr(ecd_dirent->d_name, 'Z') != NULL) {
+          if (stat(ecd_dirent->d_name, &ecd_stat) == -1) {
+            result.error = -1;
+            return result;
+          }
+          if (ecd_stat.st_dev == cwd_stat.st_dev &&
+              ecd_stat.st_ino == cwd_stat.st_ino) {
+            ++result.count_of_symlink;
+          }
         }
       } else {
         // checking for path
