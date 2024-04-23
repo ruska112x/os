@@ -23,17 +23,31 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  char buf[BUF_SIZE];
+  char read_buf[BUF_SIZE];
   int bytes;
 
-  while ((bytes = read(src_fd, buf, sizeof(buf))) > 0) {
+  char write_buf[BUF_SIZE];
+  int bytes_to_write = 0;
+
+  while ((bytes = read(src_fd, read_buf, sizeof(read_buf))) > 0 ||
+         bytes_to_write > 0) {
     for (int i = 0; i < bytes; ++i) {
-      if (buf[i] != 0) {
-        if (write(dest_fd, &buf[i], 1) != 1) {
-          fprintf(stderr, "Error writing to \"%s\" file\n", argv[2]);
-          return 1;
+      if (read_buf[i] != 0) {
+        write_buf[bytes_to_write++] = read_buf[i];
+        if (bytes_to_write == BUF_SIZE) {
+          if (write(dest_fd, write_buf, BUF_SIZE) != BUF_SIZE) {
+            fprintf(stderr, "Error writing to \"%s\" file\n", argv[2]);
+            return 1;
+          }
+          bytes_to_write = 0;
         }
       }
+    }
+    if (write(dest_fd, write_buf, bytes_to_write) != bytes_to_write) {
+      fprintf(stderr, "Error writing to \"%s\" file\n", argv[2]);
+      return 1;
+    } else {
+      bytes_to_write = 0;
     }
   }
 

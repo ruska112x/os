@@ -1,4 +1,4 @@
-all: clean build-gen run-gen build
+all: clean gen build
 	@echo "==OD==";
 	@od file.hole;
 	@echo "=STAT=";
@@ -6,13 +6,15 @@ all: clean build-gen run-gen build
 	@echo "======"
 
 clean:
-	@rm -rf a.out gen file.hole
+	@rm -rf a.out gen.out file.hole
 
 build:
 	@g++ -Wall -Wextra main.cpp
 
 build-gen:
-	@gcc -Wall -Wextra hole.c -o gen
+	@gcc -Wall -Wextra hole.c -o gen.out
 
 run-gen:
-	./gen
+	./gen.out
+
+gen: build-gen run-gen
