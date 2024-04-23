@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #define BUF_SIZE 4096
@@ -9,6 +10,32 @@ int main(int argc, char *argv[]) {
   if (argc != 3) {
     fprintf(stderr, "Invalid params count\n");
     return 1;
+  }
+
+  if (access(argv[1], R_OK) == -1) {
+    fprintf(stderr, "Error can't read from file \"%s\"\n", argv[1]);
+    return 1;
+  }
+
+  if (access(argv[2], F_OK) == 0) {
+    struct stat src_stat;
+    if (stat(argv[1], &src_stat) == -1) {
+      fprintf(stderr, "Error can't call stat for \"%s\"\n", argv[1]);
+      return 1;
+    }
+
+    struct stat dest_stat;
+    if (stat(argv[2], &dest_stat) == -1) {
+      fprintf(stderr, "Error can't call stat for \"%s\"\n", argv[2]);
+      return 1;
+    } else {
+      if (src_stat.st_dev == dest_stat.st_dev &&
+          src_stat.st_ino == dest_stat.st_ino)) {
+          fprintf(stderr, "Error \"%s\" and \"%s\" are the same file\n",
+                  argv[1], argv[2]);
+          return 1;
+        }
+    }
   }
 
   int src_fd = open(argv[1], O_RDONLY);
