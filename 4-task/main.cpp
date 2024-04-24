@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
   }
 
   if (bytes == -1) {
-    fprintf(stderr, "Error reading \"%s\"file\n", argv[1]);
+    fprintf(stderr, "Error reading \"%s\" file\n", argv[1]);
     return 1;
   }
 
