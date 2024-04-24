@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
       return 1;
     } else {
       if (src_stat.st_dev == dest_stat.st_dev &&
-          src_stat.st_ino == dest_stat.st_ino)) {
+          src_stat.st_ino == dest_stat.st_ino) {
           fprintf(stderr, "Error \"%s\" and \"%s\" are the same file\n",
                   argv[1], argv[2]);
           return 1;
