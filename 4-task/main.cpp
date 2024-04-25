@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -31,11 +32,25 @@ int main(int argc, char *argv[]) {
     } else {
       if (src_stat.st_dev == dest_stat.st_dev &&
           src_stat.st_ino == dest_stat.st_ino) {
-          fprintf(stderr, "Error \"%s\" and \"%s\" are the same file\n",
-                  argv[1], argv[2]);
-          return 1;
-        }
+        fprintf(stderr, "Error \"%s\" and \"%s\" are the same file\n", argv[1],
+                argv[2]);
+        return 1;
+      }
     }
+    char answer = '\0';
+    char enter = '\n';
+    printf("File already exist, want to overwrite? (y/N)\n");
+    do {
+      scanf("%c%c", &answer, &enter);
+      if (answer == 'n' || answer == 'N') {
+        printf("Stop copying\n");
+        return 0;
+      } else if (answer == 'y' || answer == 'Y') {
+        printf("Overwriting\n");
+      } else {
+        printf("Incorrect value: %c, enter Y or N\n", answer);
+      }
+    } while (answer != 'y' && answer != 'Y' && answer != 'n' && answer != 'N');
   }
 
   int src_fd = open(argv[1], O_RDONLY);
