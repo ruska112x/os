@@ -72,76 +72,57 @@ void *car(void *arg) {
   return NULL;
 }
 
-class Bridge {
+pthread_mutex_t pc_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t pc_cond = PTHREAD_COND_INITIALIZER;
+std::vector<pthread_t> threads;
+int max_in_queue;
+
+class Producer {
 public:
-  Bridge(int max_on_bridge_arg) : max_on_bridge{max_on_bridge_arg} {}
-
   void add(int id, int dir) {
-    if (dir == 0) {
-      n_cars.push({id, dir});
+    pthread_mutex_lock(&pc_mutex);
+    if (threads.size() + 1 <= max_in_queue) {
+      car_args car_arg{id, dir};
+      pthread_t thread;
+      pthread_create(&thread, NULL, car, &car_arg);
+      threads.emplace_back(thread);
+      pthread_cond_broadcast(&pc_cond);
     } else {
-      s_cars.push({id, dir});
+      pthread_cond_wait(&pc_cond, &pc_mutex);
     }
-  }
-
-  void run() {
-    if (n_cars.size() > 0) {
-      while (!n_cars.empty()) {
-        car_args car_arg = n_cars.front();
-        // printf("id:%d, dir:%d\n", car_arg.id, car_arg.direction);
-        pthread_t thread;
-        pthread_create(&thread, NULL, car, &car_arg);
-        n_cars.pop();
-        threads.push(thread);
-      }
-      while (!threads.empty()) {
-        pthread_t t = threads.front();
-        threads.pop();
-        pthread_join(t, NULL);
-      }
-    }
-    if (s_cars.size() > 0) {
-      while (!s_cars.empty()) {
-        car_args car_arg = s_cars.front();
-        // printf("id:%d, dir:%d\n", car_arg.id, car_arg.direction);
-        pthread_t thread;
-        pthread_create(&thread, NULL, car, &car_arg);
-        s_cars.pop();
-        threads.push(thread);
-      }
-      while (!threads.empty()) {
-        pthread_t t = threads.front();
-        threads.pop();
-        pthread_join(t, NULL);
-      }
-    }
-    // printf("%d\n", threads.size());
+    pthread_mutex_unlock(&pc_mutex);
   }
 
 private:
-  int max_on_bridge;
-  std::queue<pthread_t> threads;
-  std::queue<car_args> n_cars;
-  std::queue<car_args> s_cars;
+};
+
+class Consumer {
+public:
+  void run() {
+    pthread_mutex_lock(&pc_mutex);
+    if (threads.size() == 3) {
+      for (auto &&i : threads) {
+        pthread_join(i, NULL);
+        threads.erase(threads.begin() + i);
+      }
+      pthread_cond_broadcast(&pc_cond);
+    } else {
+      pthread_cond_wait(&pc_cond, &pc_mutex);
+    }
+    pthread_mutex_unlock(&pc_mutex);
+  }
+
+private:
 };
 
 int main(int argc, char *argv[]) {
-  if (argc != 2) {
-    fprintf(stderr, "Usage: %s <max_number_of_cars>\n", argv[0]);
-    return 1;
-  }
-
-  int max_size = atoi(argv[1]);
-  if (max_size < 1) {
-    fprintf(stderr, "Max number of cars can't be less than 1\n");
-    return 1;
-  }
-  Bridge bridge(max_size);
+  max_in_queue = 10;
+  Producer prod;
+  Consumer cons;
   int i = 0;
   while (true) {
-    bridge.add(++i, rand() % 2);
-    bridge.run();
-    // printf("---------------------------------------\n");
+    prod.add(++i, rand() % 2);
+    cons.run();
   }
 
   return 0;
